@@ -1,4 +1,6 @@
 from fastapi import FastAPI
+from pydantic import BaseModel, Field
+from typing_extensions import List
 
 app = FastAPI(
     title="Trading APP"
@@ -26,3 +28,21 @@ fake_trades = [
 @app.get("/trades")
 def get_trades(limit: int = 1, offset: int = 0):
     return fake_trades[offset:][:limit]
+
+
+#----1---
+class Trade(BaseModel):
+    id: int
+    user_id: int
+    currency:str = Field(max_length=5)
+    side: str
+    price: float = Field(ge=0)
+    amount: float
+
+@app.post('/trades')
+def add_trades(trades: List[Trade]):
+    fake_trades.extend(trades)
+    return {"status": 200, "data": fake_trades}
+
+
+#-----2-----
