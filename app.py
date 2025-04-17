@@ -1,5 +1,6 @@
 from typing import Annotated
-from fastapi import FastAPI, Depends, HTTPException, Response, BackgroundTasks
+from fastapi import FastAPI, Depends, HTTPException, Response, BackgroundTasks, UploadFile, File
+from fastapi.responses import  StreamingResponse, FileResponse
 from pydantic import BaseModel
 from authx import AuthX, AuthXConfig
 from sqlalchemy import select
@@ -122,3 +123,33 @@ async def some_route(bg_task: BackgroundTasks):
     # asyncio.create_task(async_task())
     bg_task.add_task(sync_task)
     return {'ok': True}
+
+@app.post('/files')
+async def upload_file(uploadded_file: UploadFile):
+    file = uploadded_file.file
+    file_name = uploadded_file.filename
+    with open(file_name, 'wb') as f:
+        f.write(file.read())
+
+
+@app.post('/multi_files')
+async def upload_files(uploadded_files: list[UploadFile]):
+    for uploadded_file in uploadded_files:
+        file = uploadded_file.file
+        file_name = uploadded_file.filename
+        with open(file_name, 'wb') as f:
+            f.write(file.read())
+
+
+@app.get('/file/{filename}')
+async def get_file(filename: str):
+    return FileResponse(filename)
+
+
+def iterfiles(filename: str):
+    with open(filename, 'rb') as file:
+        while chunk := file.read(1024*1024):
+            yield chunk
+@app.get('/file/streaming/{filename}')
+async def get_streaming_file(filename: str):
+    return StreamingResponse(iterfiles(filename), media_type='video/mp4')
