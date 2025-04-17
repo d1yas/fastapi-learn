@@ -1,11 +1,12 @@
 from typing import Annotated
-from fastapi import FastAPI, Depends, HTTPException, Response
+from fastapi import FastAPI, Depends, HTTPException, Response, BackgroundTasks
 from pydantic import BaseModel
 from authx import AuthX, AuthXConfig
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import  create_async_engine , async_sessionmaker, AsyncSession
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
-
+import time
+import asyncio
 
 import uvicorn
 from pydantic import BaseModel, Field, ConfigDict
@@ -108,3 +109,16 @@ def protected():
 
 
 
+def sync_task():
+    time.sleep(3)
+    print("Sync task")
+
+async def async_task():
+    time.sleep(3)
+    print("Async task")
+
+@app.post("/task")
+async def some_route(bg_task: BackgroundTasks):
+    # asyncio.create_task(async_task())
+    bg_task.add_task(sync_task)
+    return {'ok': True}
