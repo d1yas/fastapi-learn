@@ -153,3 +153,7 @@ def iterfiles(filename: str):
 @app.get('/file/streaming/{filename}')
 async def get_streaming_file(filename: str):
     return StreamingResponse(iterfiles(filename), media_type='video/mp4')
+
+
+if __name__ == '__main__':
+    uvicorn.run(app, host='0.0.0.0', port=8000)
