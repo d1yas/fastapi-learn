@@ -13,12 +13,7 @@ router = APIRouter(prefix='/users',tags=['Users'])
 
 
 
-@router.get('/')
-def all_users():
-    return "Hello"
-
-
-@router.get('/allusers', response_model=list[UserResponse])
+@router.get('/users', response_model=list[UserResponse])
 async def all_users(session: SessionDep):
     query = select(UsersModel)
     result = await session.execute(query)
@@ -27,7 +22,7 @@ async def all_users(session: SessionDep):
 
 
 
-@router.post("/register", response_model=list[UserResponse])
+@router.post("/auth/register", response_model=list[UserResponse])
 async def register(
     user: UserCreate,
     session: AsyncSession = Depends(get_db)
@@ -60,6 +55,7 @@ async def select_user(id: int, session: SessionDep):
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return user
+
 
 # @router.on_event("startup")
 # async def startup_event():

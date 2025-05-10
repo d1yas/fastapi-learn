@@ -1,35 +1,48 @@
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import List, Optional
 from datetime import datetime
 
 
 class TicketBase(BaseModel):
-    title: str = Field(..., example="Server ishlamayapti")
-    description: str = Field(..., example="Men serverga kira olmayapman")
-    status: Optional[str] = Field(default="open")
-    priority: Optional[str] = Field(default="medium")
+    title: str
+    description: Optional[str] = None
+    status: str = "open"
+    priority: str = "medium"
 
 
 class TicketCreate(TicketBase):
-    pass
+    user_id: int
 
 
 class TicketUpdate(BaseModel):
-    title: Optional[str]
-    description: Optional[str]
-    status: Optional[str]
-    priority: Optional[str]
+    title: Optional[str] = None
+    description: Optional[str] = None
+    status: Optional[str] = None
+    priority: Optional[str] = None
 
 
 class TicketInDB(TicketBase):
     id: int
-    user_id: int
     created_at: datetime
-    updated_at: datetime
+    updated_at: Optional[datetime] = None
+    user_id: int
 
     class Config:
         orm_mode = True
 
 
 class TicketResponse(TicketInDB):
-    pass
+    class Config:
+        orm_mode = True
+        from_attributes = True  # For newer Pydantic versions
+
+
+class TicketList(BaseModel):
+    total: int
+    limit: int
+    offset: int
+    data: List[TicketResponse]
+
+    class Config:
+        orm_mode = True
+        from_attributes = True  # For newer Pydantic versions

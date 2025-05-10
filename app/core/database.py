@@ -16,6 +16,8 @@ AsyncSessionLocal = sessionmaker(
     expire_on_commit=False
 )
 
+
+
 # Bazaviy model klassi
 Base = declarative_base()
 
